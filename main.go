@@ -134,14 +134,13 @@ func main() {
 			if len(personCandidates) == len(projects[i].skills) {
 				assignPeopleToProject(&projects[i], personCandidates)
 				solution = append(solution, projects[i])
-
 			}
 		}
 	}
 
 	bytes := []byte(fmt.Sprintf("%d\n", len(solution)))
 	wc(bytes)
-	for _, p := range projects {
+	for _, p := range solution {
 		bytes := []byte(fmt.Sprintf("%s\n", p.name))
 		wc(bytes)
 
