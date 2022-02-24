@@ -10,6 +10,11 @@ import (
 
 func getParams() (string, string) {
 	in := flag.String("in", "in/a_an_example.in.txt", "Input file")
+	// in := flag.String("in", "in/b_better_start_small.in.txt", "Input file")
+	// in := flag.String("in", "in/c_collaboration.in.txt", "Input file")
+	// in := flag.String("in", "in/d_dense_schedule.in.txt", "Input file")
+	// in := flag.String("in", "in/e_exceptional_skills.in.txt", "Input file")
+	// in := flag.String("in", "in/f_find_great_mentors.in.txt", "Input file")
 	out := flag.String("out", "out/a.txt", "Output file")
 	flag.Parse()
 	return *in, *out
@@ -92,6 +97,7 @@ func main() {
 	for {
 		// fmt.Println("projects", projects)
 		if projectsDone == len(projects) {
+			fmt.Println("Todos los proyectos acabados")
 			break
 		}
 
