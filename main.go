@@ -84,12 +84,15 @@ func main() {
 	personsBySkill = indexPersons(persons)
 	fmt.Println("indexedPersons", personsBySkill)
 
+	wc, close := writeFileInChunks("output")
+	defer close()
+
 	projectsDone := 0
 	// count := 5
 	for {
 		// fmt.Println("projects", projects)
 		if projectsDone == len(projects) {
-			return
+			break
 		}
 
 		// if count >= 0 {
@@ -108,7 +111,17 @@ func main() {
 				fmt.Println("Project On Going " + projects[i].name)
 				projects[i].remainingDays -= 1
 				if projects[i].remainingDays == 0 {
-					unAssignPeopleToProject(projects[i])
+					fmt.Println("Unassigned", projectByPeople)
+					for _, p := range projects[i].people {
+						delete(projectByPeople, p.name)
+					}
+					for _, s := range projects[i].skills {
+						for _, p := range projects[i].people {
+							if _, ok := p.indexedSkills[s.name]; ok {
+								p.indexedSkills[s.name] += 1
+							}
+						}
+					}
 					projects[i].isDone = true
 					projectsDone += 1
 				}
@@ -118,9 +131,11 @@ func main() {
 			personCandidates := getCandidatesForProject(projects[i])
 			if len(personCandidates) == len(projects[i].skills) {
 				assignPeopleToProject(&projects[i], personCandidates)
+				wc([]byte("foo"))
 			}
 		}
 	}
+
 }
 
 func getCandidatesForProject(project project) []person {
@@ -144,13 +159,6 @@ func assignPeopleToProject(project *project, people []person) {
 	}
 	project.remainingDays = project.days
 	project.people = people
-}
-
-func unAssignPeopleToProject(project project) {
-	fmt.Println("Unassigned", projectByPeople)
-	for _, p := range project.people {
-		delete(projectByPeople, p.name)
-	}
 }
 
 func isPersonFree(p person) bool {
