@@ -1,39 +1,33 @@
 package main
 
-type params struct {
-	duration      int
-	intersections int
-	streets       int
-	routes        int
-	score         int
+import "fmt"
+
+type person struct {
+	name   string
+	skills []skill
 }
 
-type intersection struct {
-	id         int
-	inStreets  []*street
-	outStreets []*street
+func (p *person) String() string {
+	return fmt.Sprintf("Person{name: %s, skills: %v}", p.name, p.skills)
 }
 
-type street struct {
-	startIntersection *intersection
-	endIntersection   *intersection
-	name              string
-	time              int
-	semaphore		  *semaphore
+type project struct {
+	name     string
+	days     int
+	score    int
+	deadline int
+	skills   []skill
 }
 
-type route struct {
-	streets      []*street
-	currentStreet int
-	timeInStreet int
+func (p *project) String() string {
+	return fmt.Sprintf("Project{name: %s, days: %d, score: %d, deadline: %d, skills: %v}", p.name, p.days, p.score, p.deadline, p.skills)
 }
 
-type semaphore struct {
-	idStreet string
-	street	 *street
-	state    bool
-	cars     []*route
-	timePlan int
-	timeOpen int
-	historicOpen	[]int
+type skill struct {
+	name  string
+	level int
+}
+
+func (s *skill) String() string {
+	return fmt.Sprintf("Skill{name: %s, level: %d}", s.name, s.level)
 }

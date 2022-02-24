@@ -6,20 +6,16 @@ import (
 	"fmt"
 	"os"
 	"strings"
-	"time"
 )
 
 func getParams() (string, string) {
-	in := flag.String("in", "in/a.txt", "Input file")
+	in := flag.String("in", "in/a_an_example.in.txt", "Input file")
 	out := flag.String("out", "out/a.txt", "Output file")
 	flag.Parse()
 	return *in, *out
 }
 
 func main() {
-
-	start := time.Now()
-
 	// Parse file
 	inputFile, outputFile := getParams()
 	fmt.Printf("Input: %s Output: %s\n", inputFile, outputFile)
@@ -28,111 +24,56 @@ func main() {
 	check(err)
 	reader := bufio.NewReader(f)
 	data, _, err := reader.ReadLine()
+	check(err)
 
 	strs := strings.Split(string(data), " ")
-	params := params{
-		duration:      parseInt(strs[0]),
-		intersections: parseInt(strs[1]),
-		streets:       parseInt(strs[2]),
-		routes:        parseInt(strs[3]),
-		score:         parseInt(strs[4]),
-	}
-	fmt.Println("params")
-	fmt.Println(params)
+	numPersons := parseInt(strs[0])
+	numProjects := parseInt(strs[1])
 
-	intersections := make([]*intersection, params.intersections)
-	for i := range intersections {
-		intersections[i] = &intersection{
-			id:         i,
-			inStreets:  []*street{},
-			outStreets: []*street{},
-		}
-	}
+	persons := make([]person, numPersons)
 
-	streets := make(map[string]*street, params.streets)
-	for i := 0; i < params.streets; i++ {
+	for i := 0; i < numPersons; i++ {
 		data, _, err := reader.ReadLine()
 		check(err)
 		strs = strings.Split(string(data), " ")
 
-		intersectionStart := intersections[parseInt(strs[0])]
-		intersectionEnd := intersections[parseInt(strs[1])]
+		persons[i].name = strs[0]
+		numSkills := parseInt(strs[1])
+		persons[i].skills = make([]skill, numSkills)
+		for j := 0; j < numSkills; j++ {
+			data, _, err := reader.ReadLine()
+			check(err)
+			strs = strings.Split(string(data), " ")
 
-		st := street{
-			startIntersection: intersectionStart,
-			endIntersection:   intersectionEnd,
-			name:              strs[2],
-			time:              parseInt(strs[3]),
-			semaphore:		   nil,
+			persons[i].skills[j].name = strs[0]
+			persons[i].skills[j].level = parseInt(strs[1])
 		}
-		streets[strs[2]] = &st
-		
-		intersectionStart.outStreets = append(intersectionStart.outStreets, &st)
-		intersectionEnd.inStreets = append(intersectionEnd.inStreets, &st)
 	}
 
-	semaphores := make([]*semaphore, 0)
-	for _, v := range intersections {
-		// if len(v.inStreets) > 1 {
-		for _, v := range v.inStreets {
-			sem := semaphore{
-				idStreet: v.name,
-				street:   v,
-				state:    false,
-				cars:     []*route{},
-			}
-			semaphores = append(semaphores, &sem)
-			v.semaphore = &sem
-		}
-		// }
-	}
-
-	routes := make([]*route, params.routes)
-	for i := 0; i < params.routes; i++ {
+	projects := make([]project, numProjects)
+	for i := 0; i < numProjects; i++ {
 		data, _, err := reader.ReadLine()
 		check(err)
-		strs = strings.Split(string(data), " ")[1:]
-		routeStreets := make([]*street, len(strs))
-		for j, s := range strs {
-			st := streets[s]
-			routeStreets[j] = st
-		}
+		strs = strings.Split(string(data), " ")
 
-		r := route{
-			streets:      routeStreets,
-			currentStreet: 0,
-			timeInStreet: 1,
-		}
-		routes[i] = &r
+		projects[i].name = strs[0]
+		projects[i].days = parseInt(strs[1])
+		projects[i].score = parseInt(strs[2])
+		projects[i].deadline = parseInt(strs[3])
 
-		if routeStreets[0].semaphore != nil {
-			routeStreets[0].semaphore.cars = append(routeStreets[0].semaphore.cars, &r)
+		numSkills := parseInt(strs[4])
+		projects[i].skills = make([]skill, numSkills)
+
+		for j := 0; j < numSkills; j++ {
+			data, _, err := reader.ReadLine()
+			check(err)
+			strs = strings.Split(string(data), " ")
+
+			projects[i].skills[j].name = strs[0]
+			projects[i].skills[j].level = parseInt(strs[1])
 		}
 	}
 
-	timeLoad := time.Since(start)
-	fmt.Printf("Time loading: %v, Streets: %v, Routes: %v, Intersections: %v, Semaphores: %v.", 
-		timeLoad, len(streets), len(routes), len(intersections), len(semaphores))
-	fmt.Println();
-	
-	startSimulation := time.Now()
-	simulation(params.duration, &routes, &intersections, &semaphores)
-	// printSemaphores(&semaphores)
-	timeSimulation := time.Since(startSimulation)
-	fmt.Printf("Time simulation: %v", timeSimulation)
-	fmt.Println();
-	
-	startExport := time.Now()
-	exportResult(outputFile, &intersections)
-	timeExport := time.Since(startExport)
-	fmt.Printf("Time export: %v", timeExport)
-	fmt.Println();
-}
-
-func printSemaphores(semaphores *[]*semaphore) {
-	for _, s := range *semaphores {
-		fmt.Printf("Semaphore street: %v, state: %v, heapCars: %v, historicChanges: %v, timeOpen: %v",
-			s.idStreet, s.state, len(s.cars), s.historicOpen, s.timeOpen)
-		fmt.Println()
-	}
+	fmt.Println("persons", persons)
+	fmt.Println("projects", projects)
 }
