@@ -9,9 +9,9 @@ $os_box_version = "2004.01"
 # ***********************************************
 ### VARIABLES
 # ***********************************************
-$manager_ip = "172.28.200.5"
-$hostname = "centos-hashcode-21"
-$vm_name = "centos-hashcode-21"
+$manager_ip = "172.28.200.6"
+$hostname = "centos-hashcode-22"
+$vm_name = "centos-hashcode-22"
 $vm_mem= "2048"
 $vm_cpus = 2
 # ***********************************************
