@@ -46,7 +46,7 @@ func (p project) indexSkills() {
 }
 
 func (p project) String() string {
-	return fmt.Sprintf("Project{name: %s, days: %d, score: %d, deadline: %d, skills: %v, people: %v}", p.name, p.days, p.score, p.deadline, p.skills, p.people)
+	return fmt.Sprintf("Project{name: %s, days: %d, score: %d, deadline: %d, skills: %v, people: %v, remainingDays: %v}", p.name, p.days, p.score, p.deadline, p.skills, p.people, p.remainingDays)
 }
 
 type skill struct {

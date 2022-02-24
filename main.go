@@ -15,7 +15,7 @@ func getParams() (string, string) {
 	return *in, *out
 }
 
-var personsBySkil map[string][]person
+var personsBySkill map[string][]person
 var projectByPeople map[string]string
 
 func main() {
@@ -81,34 +81,43 @@ func main() {
 	fmt.Println("persons", persons)
 	fmt.Println("projects", projects)
 
-	personsBySkill := indexPersons(persons)
+	personsBySkill = indexPersons(persons)
 	fmt.Println("indexedPersons", personsBySkill)
 
 	projectsDone := 0
+	// count := 5
 	for {
-		fmt.Println("projects", projects)
+		// fmt.Println("projects", projects)
 		if projectsDone == len(projects) {
 			return
 		}
 
-		for _, project := range projects {
-			if project.isDone {
+		// if count >= 0 {
+		// 	count -= 1
+		// } else {
+		// 	return
+		// }
+
+		for i, _ := range projects {
+			// fmt.Println(projects[i])
+			if projects[i].isDone {
+				// fmt.Println("Project is done", projects[i].name)
 				continue
 			}
-			if project.onGoing() {
-				project.remainingDays -= 1
-				if project.remainingDays == 0 {
-					unAssignPeopleToProject(project)
-					project.isDone = true
+			if projects[i].onGoing() {
+				fmt.Println("Project On Going " + projects[i].name)
+				projects[i].remainingDays -= 1
+				if projects[i].remainingDays == 0 {
+					unAssignPeopleToProject(projects[i])
+					projects[i].isDone = true
 					projectsDone += 1
 				}
 				continue
 			}
 
-			personCandidates := getCandidatesForProject(project)
-			fmt.Println(personCandidates)
-			if len(personCandidates) == len(project.skills) {
-				assignPeopleToProject(project, personCandidates)
+			personCandidates := getCandidatesForProject(projects[i])
+			if len(personCandidates) == len(projects[i].skills) {
+				assignPeopleToProject(&projects[i], personCandidates)
 			}
 		}
 	}
@@ -117,7 +126,7 @@ func main() {
 func getCandidatesForProject(project project) []person {
 	people := []person{}
 	for _, skill := range project.skills {
-		for _, person := range personsBySkil[skill.name] {
+		for _, person := range personsBySkill[skill.name] {
 			if person.indexedSkills[skill.name] >= skill.level {
 				// TODO: corner cases
 				if isPersonFree(person) {
@@ -129,7 +138,7 @@ func getCandidatesForProject(project project) []person {
 	return people
 }
 
-func assignPeopleToProject(project project, people []person) {
+func assignPeopleToProject(project *project, people []person) {
 	for _, p := range people {
 		projectByPeople[p.name] = project.name
 	}
@@ -138,6 +147,7 @@ func assignPeopleToProject(project project, people []person) {
 }
 
 func unAssignPeopleToProject(project project) {
+	fmt.Println("Unassigned", projectByPeople)
 	for _, p := range project.people {
 		delete(projectByPeople, p.name)
 	}
