@@ -9,12 +9,12 @@ import (
 )
 
 func getParams() (string, string) {
-	in := flag.String("in", "in/a_an_example.in.txt", "Input file")
+	// in := flag.String("in", "in/a_an_example.in.txt", "Input file")
 	// in := flag.String("in", "in/b_better_start_small.in.txt", "Input file")
 	// in := flag.String("in", "in/c_collaboration.in.txt", "Input file")
 	// in := flag.String("in", "in/d_dense_schedule.in.txt", "Input file")
 	// in := flag.String("in", "in/e_exceptional_skills.in.txt", "Input file")
-	// in := flag.String("in", "in/f_find_great_mentors.in.txt", "Input file")
+	in := flag.String("in", "in/f_find_great_mentors.in.txt", "Input file")
 	out := flag.String("out", "out/a.txt", "Output file")
 	flag.Parse()
 	return *in, *out
@@ -84,15 +84,16 @@ func main() {
 		}
 	}
 
-	fmt.Println("persons", persons)
-	fmt.Println("projects", projects)
+	// fmt.Println("persons", persons)
+	// fmt.Println("projects", projects)
 
 	personsBySkill = indexPersons(persons)
-	fmt.Println("indexedPersons", personsBySkill)
+	// fmt.Println("indexedPersons", personsBySkill)
 
 	wc, close := writeFileInChunks("output")
 	defer close()
 
+	fmt.Println("Starting with", len(projects), "projects")
 	projectsDone := 0
 	// count := 5
 	for {
@@ -102,6 +103,8 @@ func main() {
 			fmt.Println("Todos los proyectos acabados")
 			break
 		}
+
+		projectsOnGoing := 0
 
 		// if count >= 0 {
 		// 	count -= 1
@@ -116,10 +119,11 @@ func main() {
 				continue
 			}
 			if projects[i].onGoing() {
-				fmt.Println("Project On Going " + projects[i].name)
+				// fmt.Println("Project On Going " + projects[i].name)
+				projectsOnGoing += 1
 				projects[i].remainingDays -= 1
 				if projects[i].remainingDays == 0 {
-					fmt.Println("Unassigned", projectByPeople)
+					// fmt.Println("Unassigned", projectByPeople)
 					for _, p := range projects[i].people {
 						delete(projectByPeople, p.name)
 					}
@@ -139,10 +143,18 @@ func main() {
 			personCandidates := getCandidatesForProject(projects[i])
 			if len(personCandidates) == len(projects[i].skills) {
 				assignPeopleToProject(&projects[i], personCandidates)
+				projectsOnGoing += 1
 				solution = append(solution, projects[i])
 			}
 		}
+
+		if projectsOnGoing == 0 {
+			fmt.Println("End with unplanned projects")
+			break
+		}
 	}
+
+	fmt.Println("End with", len(solution), "projects")
 
 	bytes := []byte(fmt.Sprintf("%d\n", len(solution)))
 	wc(bytes)
