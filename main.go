@@ -19,6 +19,7 @@ var personsBySkill map[string][]person
 var projectByPeople map[string]string
 
 func main() {
+	solution := []project{}
 	projectByPeople = map[string]string{}
 	// Parse file
 	inputFile, outputFile := getParams()
@@ -90,6 +91,7 @@ func main() {
 	projectsDone := 0
 	// count := 5
 	for {
+
 		// fmt.Println("projects", projects)
 		if projectsDone == len(projects) {
 			break
@@ -131,11 +133,26 @@ func main() {
 			personCandidates := getCandidatesForProject(projects[i])
 			if len(personCandidates) == len(projects[i].skills) {
 				assignPeopleToProject(&projects[i], personCandidates)
-				wc([]byte("foo"))
+				solution = append(solution, projects[i])
+
 			}
 		}
 	}
 
+	bytes := []byte(fmt.Sprintf("%d\n", len(solution)))
+	wc(bytes)
+	for _, p := range projects {
+		bytes := []byte(fmt.Sprintf("%s\n", p.name))
+		wc(bytes)
+
+		names := []string{}
+		for _, n := range p.people {
+			names = append(names, n.name)
+		}
+
+		bytes = []byte(fmt.Sprintf("%s\n", strings.Join(names, " ")))
+		wc(bytes)
+	}
 }
 
 func getCandidatesForProject(project project) []person {
