@@ -1,6 +1,7 @@
 package main
 
 import (
+	"sort"
 	"strconv"
 )
 
@@ -54,7 +55,6 @@ func isIgnorableElement(v byte, dimensions int) bool {
 	return false
 }
 
-
 func twoDSlice(n, m int) [][]int {
 	table := make([][]int, n, n)
 	for i := 0; i < n; i++ {
@@ -95,6 +95,26 @@ func sliceToIndex(s []int) map[int][]int {
 	}
 	for i, val := range s {
 		index[val] = append(index[val], i)
+	}
+	return index
+}
+
+// index by skill name
+func indexPersons(persons []person) map[string][]person {
+	index := map[string][]person{}
+	for _, p := range persons {
+		for _, s := range p.skills {
+			if index[s.name] == nil {
+				index[s.name] = []person{}
+			}
+			p.indexSkills()
+			index[s.name] = append(index[s.name], p)
+		}
+	}
+	for skill, persons := range index {
+		sort.SliceStable(persons, func(i, j int) bool {
+			return persons[i].indexedSkills[skill] < persons[j].indexedSkills[skill]
+		})
 	}
 	return index
 }
